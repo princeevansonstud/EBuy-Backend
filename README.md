@@ -24,23 +24,23 @@
 2. Create and activate a Python virtual environment:
    python -m venv venv
    source venv/bin/activate
-* ** Install the required dependencies: pip install -r requirements.txt
-* ** Run database migrations and start the development server:
+* Install the required dependencies: pip install -r requirements.txt
+*  Run database migrations and start the development server:
    python manage.py migrate
    python manage.py runserver
 
 ## API Architecture & Features:
-* ** User Authentication: Endpoints for user registration, token acquisition, and profile retrieval/updates via JWT.
-* ** Product Catalog: List, create, retrieve, update, and delete products with built-in search, ordering, and category filtering. Sellers can manage their exclusive product inventories.
-* ** Order Management: Secure endpoints allowing authenticated users to place, view, and track order histories and order items.
-* ** Containerization: Ready for deployment using Docker via container build configurations.
+*  User Authentication: Endpoints for user registration, token acquisition, and profile retrieval/updates via JWT.
+*  Product Catalog: List, create, retrieve, update, and delete products with built-in search, ordering, and category filtering. Sellers can manage their exclusive product inventories.
+*  Order Management: Secure endpoints allowing authenticated users to place, view, and track order histories and order items.
+*  Containerization: Ready for deployment using Docker via container build configurations.
 
   ## Conclusion:
-* ** EBuy Backend delivers a secure, highly scalable API foundation capable of managing core e-commerce workflows.
-* ** With token-based security and clean modular structuring, it powers seamless integration across full-stack environments.
+*  EBuy Backend delivers a secure, highly scalable API foundation capable of managing core e-commerce workflows.
+*  With token-based security and clean modular structuring, it powers seamless integration across full-stack environments.
 
   ## Licenses:
-* ** This project is licensed under the MIT License.
+* This project is licensed under the MIT License.
 
   ## Author
-Prince Evanson
+   Prince Evanson
