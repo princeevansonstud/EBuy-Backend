@@ -1,13 +1,15 @@
-from rest_framework import generics, status, filters
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, status, filters, permissions
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
-from .models import Category, Product, Order, OrderItem
+from .models import Category, Product, Order, OrderItem, Profile
 from .serializers import (
     RegisterSerializer,
     CategorySerializer,
     ProductSerializer,
     OrderSerializer,
+    UserProfileSerializer,
 )
 
 
@@ -17,14 +19,26 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Returns the logged-in user matching the JWT token
+        return self.request.user
+
+
 class ProductListView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
     # Enable filtering, searching, and ordering
-    filter_backends = [DjangoFilterBackend,
-                       filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ['category']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at']
@@ -56,4 +70,8 @@ class OrderListCreateView(generics.ListCreateAPIView):
             )
 
         headers = self.get_success_headers(serializer.data)
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            OrderSerializer(order).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
