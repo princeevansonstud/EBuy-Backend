@@ -1,11 +1,14 @@
-from rest_framework import generics, status
-from rest_framework.response import Response
+from rest_framework import generics, status, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User
 from .models import Category, Product, Order, OrderItem
-from .serializers import RegisterSerializer, CategorySerializer, ProductSerializer, OrderSerializer
-
-# 1. Register View
+from .serializers import (
+    RegisterSerializer,
+    CategorySerializer,
+    ProductSerializer,
+    OrderSerializer,
+)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -13,15 +16,18 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
-# 2. Product List & Create View
-
 
 class ProductListView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
-# 3. Product Detail View
+    # Enable filtering, searching, and ordering
+    filter_backends = [DjangoFilterBackend,
+                       filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category']
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'created_at']
 
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -29,27 +35,24 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
-# 4. Order Create & List View
-
 
 class OrderListCreateView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         items_data = request.data.get('items', [])
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order = serializer.save()
+        order = serializer.save(user=request.user)
 
-        # Create nested OrderItems
         for item in items_data:
             OrderItem.objects.create(
                 order=order,
                 product_id=item['product_id'],
                 quantity=item.get('quantity', 1),
-                price=item['price']
+                price=item['price'],
             )
 
         headers = self.get_success_headers(serializer.data)
